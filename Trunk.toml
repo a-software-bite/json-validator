@@ -1,0 +1,11 @@
+[build]
+target = "index.html"
+dist = "dist"
+
+[watch]
+ignore = ["node_modules", "dist"]
+
+[[hooks]]
+stage = "pre_build"
+command = "sh"
+command_arguments = ["-c", "npx @tailwindcss/cli -i ./styles/main.css -o ./dist/styles.css --minify 2>/dev/null || mkdir -p dist && touch dist/styles.css"]

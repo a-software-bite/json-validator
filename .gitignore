@@ -1,0 +1,21 @@
+# Rust
+/target
+
+# Node
+node_modules/
+
+# Build output
+/dist
+
+# Screenshots (local only)
+.screenshots/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
