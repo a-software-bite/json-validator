@@ -1,0 +1,13 @@
+{
+  "name": "json-validator",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "css": "npx @tailwindcss/cli -i ./styles/main.css -o ./dist/styles.css --watch",
+    "css:build": "npx @tailwindcss/cli -i ./styles/main.css -o ./dist/styles.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}
