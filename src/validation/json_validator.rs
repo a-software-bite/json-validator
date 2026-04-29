@@ -30,20 +30,12 @@ impl ValidationResult {
 /// This function is decoupled from any UI framework for easy testing.
 pub fn validate_json(input: &str) -> ValidationResult {
     if input.trim().is_empty() {
-        return ValidationResult::invalid(
-            "Input is empty".to_string(),
-            None,
-            None,
-        );
+        return ValidationResult::invalid("Input is empty".to_string(), None, None);
     }
 
     match serde_json::from_str::<serde_json::Value>(input) {
         Ok(_) => ValidationResult::valid(),
-        Err(e) => ValidationResult::invalid(
-            e.to_string(),
-            Some(e.line()),
-            Some(e.column()),
-        ),
+        Err(e) => ValidationResult::invalid(e.to_string(), Some(e.line()), Some(e.column())),
     }
 }
 
