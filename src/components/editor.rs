@@ -1,13 +1,5 @@
-use leptos::prelude::*;
-use leptos::ev::Event;
-use leptos::wasm_bindgen::JsCast;
 use crate::validation::json_validator::{validate_json, ValidationResult};
-
-fn event_target_value(ev: &Event) -> String {
-    let target = ev.target().unwrap();
-    let input: web_sys::HtmlTextAreaElement = target.unchecked_into();
-    input.value()
-}
+use leptos::prelude::*;
 
 #[component]
 pub fn JsonEditor() -> impl IntoView {
@@ -33,7 +25,7 @@ pub fn JsonEditor() -> impl IntoView {
                                focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2
                                resize-none font-mono text-sm"
                         placeholder="Paste your JSON here..."
-                        on:input=move |ev| set_json_input.set(event_target_value(&ev))
+                        on:input=move |ev| set_json_input.set(event_target::<web_sys::HtmlTextAreaElement>(&ev).value())
                         prop:value=move || json_input.get()
                     />
 
