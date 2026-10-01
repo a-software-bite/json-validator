@@ -72,51 +72,87 @@ pub fn validate_json(input: &str, kind: ParserKind) -> ValidationResult {
 mod tests {
     use super::*;
 
+    const KINDS: [ParserKind; 2] = [ParserKind::Fast, ParserKind::Slow];
+
     #[test]
     fn test_valid_object() {
-        let result = validate_json(r#"{"key": "value"}"#, ParserKind::Fast);
-        assert!(result.is_valid);
-        assert!(result.error_message.is_none());
+        for kind in KINDS {
+            let result = validate_json(r#"{"key": "value"}"#, kind);
+            assert!(result.is_valid, "{kind:?}");
+            assert!(result.error_message.is_none(), "{kind:?}");
+        }
     }
 
     #[test]
     fn test_valid_array() {
-        let result = validate_json(r#"[1, 2, 3]"#, ParserKind::Fast);
-        assert!(result.is_valid);
+        for kind in KINDS {
+            assert!(validate_json(r#"[1, 2, 3]"#, kind).is_valid, "{kind:?}");
+        }
     }
 
     #[test]
     fn test_valid_nested() {
-        let result = validate_json(r#"{"users": [{"name": "Alice"}, {"name": "Bob"}]}"#, ParserKind::Fast);
-        assert!(result.is_valid);
+        for kind in KINDS {
+            assert!(
+                validate_json(r#"{"users": [{"name": "Alice"}, {"name": "Bob"}]}"#, kind).is_valid,
+                "{kind:?}"
+            );
+        }
     }
 
     #[test]
     fn test_valid_primitives() {
-        assert!(validate_json("42", ParserKind::Fast).is_valid);
-        assert!(validate_json("true", ParserKind::Fast).is_valid);
-        assert!(validate_json("false", ParserKind::Fast).is_valid);
-        assert!(validate_json("null", ParserKind::Fast).is_valid);
-        assert!(validate_json(r#""hello""#, ParserKind::Fast).is_valid);
+        for kind in KINDS {
+            assert!(validate_json("42", kind).is_valid, "{kind:?}");
+            assert!(validate_json("true", kind).is_valid, "{kind:?}");
+            assert!(validate_json("false", kind).is_valid, "{kind:?}");
+            assert!(validate_json("null", kind).is_valid, "{kind:?}");
+            assert!(validate_json(r#""hello""#, kind).is_valid, "{kind:?}");
+        }
     }
 
     #[test]
     fn test_invalid_missing_quote() {
-        let result = validate_json(r#"{"key: "value"}"#, ParserKind::Fast);
-        assert!(!result.is_valid);
-        assert!(result.error_message.is_some());
+        for kind in KINDS {
+            let result = validate_json(r#"{"key: "value"}"#, kind);
+            assert!(!result.is_valid, "{kind:?}");
+            // `value` is read as an invalid keyword at byte 8
+            assert_eq!(result.error_line, Some(1), "{kind:?}");
+            assert_eq!(result.error_column, Some(9), "{kind:?}");
+        }
     }
 
     #[test]
     fn test_invalid_trailing_comma() {
-        let result = validate_json(r#"{"key": "value",}"#, ParserKind::Fast);
-        assert!(!result.is_valid);
+        for kind in KINDS {
+            let result = validate_json(r#"{"key": "value",}"#, kind);
+            assert!(!result.is_valid, "{kind:?}");
+            // the closing brace at byte 16 is unexpected
+            assert_eq!(result.error_line, Some(1), "{kind:?}");
+            assert_eq!(result.error_column, Some(17), "{kind:?}");
+        }
     }
 
     #[test]
     fn test_invalid_single_quotes() {
-        let result = validate_json(r#"{'key': 'value'}"#, ParserKind::Fast);
-        assert!(!result.is_valid);
+        for kind in KINDS {
+            let result = validate_json(r#"{'key': 'value'}"#, kind);
+            assert!(!result.is_valid, "{kind:?}");
+            // single quote is invalid punctuation at byte 1
+            assert_eq!(result.error_line, Some(1), "{kind:?}");
+            assert_eq!(result.error_column, Some(2), "{kind:?}");
+        }
+    }
+
+    #[test]
+    fn test_missing_comma_reports_key_position() {
+        for kind in KINDS {
+            let result = validate_json("{\n  \"key\": 42\n  \"key2\": true\n}", kind);
+            assert!(!result.is_valid, "{kind:?}");
+            // both parsers point at the second key, line 3 column 3
+            assert_eq!(result.error_line, Some(3), "{kind:?}");
+            assert_eq!(result.error_column, Some(3), "{kind:?}");
+        }
     }
 
     #[test]
@@ -136,7 +172,8 @@ mod tests {
     fn test_error_location() {
         let result = validate_json("{\n  \"key\": value\n}", ParserKind::Fast);
         assert!(!result.is_valid);
-        assert!(result.error_line.is_some());
-        assert!(result.error_column.is_some());
+        // `value` is read as an invalid keyword at line 2, column 10
+        assert_eq!(result.error_line, Some(2));
+        assert_eq!(result.error_column, Some(10));
     }
 }
