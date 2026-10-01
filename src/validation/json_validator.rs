@@ -1,3 +1,5 @@
+use rust_json_parser::parse_json;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ValidationResult {
     pub is_valid: bool,
@@ -33,9 +35,15 @@ pub fn validate_json(input: &str) -> ValidationResult {
         return ValidationResult::invalid("Input is empty".to_string(), None, None);
     }
 
-    match serde_json::from_str::<serde_json::Value>(input) {
+    match parse_json(input) {
         Ok(_) => ValidationResult::valid(),
-        Err(e) => ValidationResult::invalid(e.to_string(), Some(e.line()), Some(e.column())),
+        Err(e) => {
+            let (line, column) = e
+                .line_column(input)
+                .map(|(l, c)| (Some(l), Some(c)))
+                .unwrap_or((None, None));
+            ValidationResult::invalid(e.to_string(), line, column)
+        }
     }
 }
 

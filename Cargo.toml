@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 leptos = { version = "0.7", features = ["csr"] }
-serde_json = "1.0"
+rust-json-parser = { git = "https://github.com/daconjurer/rust-json-parser", subdirectory = "rust-json-parser" }
 console_error_panic_hook = "0.1"
 web-sys = { version = "0.3", features = ["console"] }
 
