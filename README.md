@@ -4,8 +4,9 @@ A simple JSON validator built with Rust, Leptos, and TailwindCSS 4.
 
 ## Features
 
-- Client-side JSON validation using `serde_json`
-- Instant feedback with error location (line and column)
+- Client-side JSON validation using [rust-json-parser](https://github.com/daconjurer/rust-json-parser), wired in as a git dependency
+- Choice of the crate's two parsers: fast (single pass) or slow (tokenizer)
+- Instant feedback with error location (line and column) via `JsonError::line_column`
 - Clean, modern UI styled with TailwindCSS 4
 
 ## Development
