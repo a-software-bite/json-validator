@@ -1194,7 +1194,7 @@ dependencies = [
 [[package]]
 name = "rust-json-parser"
 version = "0.1.0"
-source = "git+https://github.com/daconjurer/rust-json-parser#371f53950fd32784d5bf53f2b8c6d367c1de84a9"
+source = "git+https://github.com/daconjurer/rust-json-parser#4504a49ea0753b3b03dbe966459933c0ed7722ad"
 
 [[package]]
 name = "rustc-hash"
