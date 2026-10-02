@@ -49,11 +49,21 @@ impl ValidationResult {
     }
 }
 
+const MAX_INPUT_LEN: usize = 1_000_000;
+
 /// Validates JSON string and returns detailed result.
 /// This function is decoupled from any UI framework for easy testing.
 pub fn validate_json(input: &str, kind: ParserKind) -> ValidationResult {
     if input.trim().is_empty() {
         return ValidationResult::invalid("Input is empty".to_string(), None, None);
+    }
+
+    if input.len() > MAX_INPUT_LEN {
+        return ValidationResult::invalid(
+            format!("Input exceeds maximum length of {MAX_INPUT_LEN} bytes"),
+            None,
+            None,
+        );
     }
 
     match kind.parse(input) {
@@ -175,5 +185,16 @@ mod tests {
         // `value` is read as an invalid keyword at line 2, column 10
         assert_eq!(result.error_line, Some(2));
         assert_eq!(result.error_column, Some(10));
+    }
+
+    #[test]
+    fn test_input_too_large() {
+        let oversized = "x".repeat(MAX_INPUT_LEN + 1);
+        let result = validate_json(&oversized, ParserKind::Fast);
+        assert!(!result.is_valid);
+        assert!(result
+            .error_message
+            .unwrap()
+            .contains("maximum length"));
     }
 }
